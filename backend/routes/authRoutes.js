@@ -1,12 +1,13 @@
 import express from 'express';
 import passport from 'passport';
-import { login, googleCallback, getMe } from '../controllers/authController.js';
+import { sendOtp, verifyOtp, googleCallback, getMe } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Email/password login
-router.post('/login', login);
+// OTP login flow
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
 
 // Google OAuth — initiates the OAuth flow
 router.get(

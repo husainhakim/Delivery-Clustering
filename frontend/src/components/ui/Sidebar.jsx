@@ -10,6 +10,7 @@ import {
   BookOpen,
   LogOut,
   Zap,
+  User,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -24,7 +25,7 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { logout, admin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -95,9 +96,36 @@ const Sidebar = () => {
           borderRadius: '10px',
           padding: '10px 12px',
           marginBottom: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
         }}>
-          <p style={{ fontSize: '0.7rem', color: '#64748b', margin: 0 }}>Logged in as</p>
-          <p style={{ fontSize: '0.8rem', color: '#a5b4fc', fontWeight: 600, margin: 0 }}>admin@delivery.com</p>
+          {admin?.avatar ? (
+            <img 
+              src={admin.avatar} 
+              alt="Profile" 
+              style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid rgba(99,102,241,0.5)' }} 
+            />
+          ) : (
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(99,102,241,0.15)',
+              border: '2px solid rgba(99,102,241,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <User size={16} color="#818cf8" />
+            </div>
+          )}
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <p style={{ fontSize: '0.7rem', color: '#64748b', margin: 0 }}>Logged in as</p>
+            <p style={{ fontSize: '0.8rem', color: '#a5b4fc', fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {admin?.name || admin?.email || 'admin@delivery.com'}
+            </p>
+          </div>
         </div>
         <button onClick={handleLogout} className="btn-danger" style={{ width: '100%', justifyContent: 'center' }}>
           <LogOut size={16} />

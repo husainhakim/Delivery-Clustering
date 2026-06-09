@@ -1,0 +1,67 @@
+/* Hide the default cursor everywhere */
+* {
+  cursor: none !important;
+}
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate3d(-50%, -50%, 0);
+  transition: width 0.2s, height 0.2s, background-color 0.2s;
+  /* Centering adjustment done by setting margin to -4px if needed, but we handle it via CSS offset */
+  margin: -4px 0 0 -4px;
+}
+
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgba(99, 102, 241, 0.5); /* Indigo accent */
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate3d(-50%, -50%, 0);
+  /* The transition delay on transform creates the "trailing" effect */
+  transition: transform 0.15s ease-out, width 0.2s, height 0.2s, border-color 0.2s, background-color 0.2s;
+  margin: -20px 0 0 -20px;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+/* Hovering state for clickable elements */
+.cursor-dot.hovering {
+  width: 4px;
+  height: 4px;
+  background-color: #8b5cf6;
+  margin: -2px 0 0 -2px;
+}
+
+.cursor-ring.hovering {
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border-color: rgba(139, 92, 246, 0.8);
+  background-color: rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+}
+
+/* Clicking state */
+.cursor-ring.clicking {
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  border-color: #f1f5f9;
+  transition: width 0.1s, height 0.1s, margin 0.1s;
+}
+
+.cursor-dot.clicking {
+  background-color: #6366f1;
+}

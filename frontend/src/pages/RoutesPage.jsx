@@ -96,7 +96,7 @@ const RoutesPage = () => {
         <div>
           <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: 0 }}>Delivery Routes</h2>
           <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0' }}>
-            {routes.length} routes connecting {zones.length} zones
+            {routes?.length || 0} routes connecting {zones?.length || 0} zones
           </p>
         </div>
         <button className="btn-primary" id="add-route-btn" onClick={() => setShowModal(true)}>
@@ -123,7 +123,7 @@ const RoutesPage = () => {
               </tr>
             </thead>
             <tbody>
-              {routes.length === 0 ? (
+              {(!routes || routes.length === 0) ? (
                 <tr>
                   <td colSpan={6} style={{ textAlign: 'center', padding: '60px', color: '#475569' }}>
                     <RouteIcon size={40} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />

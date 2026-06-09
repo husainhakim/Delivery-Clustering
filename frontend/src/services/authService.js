@@ -1,7 +1,12 @@
 import api from './api';
 
-export const login = async (email, password) => {
-  const { data } = await api.post('/auth/login', { email, password });
+export const sendOtp = async (email) => {
+  const { data } = await api.post('/auth/send-otp', { email });
+  return data;
+};
+
+export const verifyOtp = async (email, otp) => {
+  const { data } = await api.post('/auth/verify-otp', { email, otp });
   return data;
 };
 

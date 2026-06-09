@@ -46,12 +46,6 @@ const seed = async () => {
     await Route.deleteMany({});
     console.log('🗑️  Cleared existing zones and routes');
 
-    const zones = await Zone.insertMany(zonesData);
-    console.log(`📍 Inserted ${zones.length} zones`);
-
-    const zoneMap = {};
-    zones.forEach((z) => { zoneMap[z.zoneCode] = z._id; });
-
     const routePairs = [
       // === LARGE CLUSTER (ZN001–ZN008, 8 Mumbai core zones) ===
       ['ZN001', 'ZN002'],
@@ -71,6 +65,37 @@ const seed = async () => {
       ['ZN015', 'ZN012'],
       // ZN009 Borivali — intentionally isolated
     ];
+
+    // Dynamic Generation of MANY zones
+    const cities = ['Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad'];
+    let nextZoneCode = 100;
+    
+    cities.forEach(city => {
+      const cityZones = [];
+      // Generate 7 zones per city to get ~50 total zones
+      for (let i = 1; i <= 7; i++) {
+        const code = `ZN${nextZoneCode++}`;
+        const newZone = { name: `${city} Zone ${i}`, city: city, zoneCode: code };
+        zonesData.push(newZone);
+        cityZones.push(code);
+      }
+      
+      // Connect them together to form a massive cluster for the city
+      for (let i = 0; i < cityZones.length - 1; i++) {
+        // Connect sequentially to guarantee one big cluster
+        routePairs.push([cityZones[i], cityZones[i+1]]);
+        // Add some random cross-connections
+        if (i + 3 < cityZones.length) {
+          routePairs.push([cityZones[i], cityZones[i+3]]);
+        }
+      }
+    });
+
+    const zones = await Zone.insertMany(zonesData);
+    console.log(`📍 Inserted ${zones.length} zones`);
+
+    const zoneMap = {};
+    zones.forEach((z) => { zoneMap[z.zoneCode] = z._id; });
 
     const routeDocs = routePairs.map(([src, dst]) => ({
       sourceZone: zoneMap[src],

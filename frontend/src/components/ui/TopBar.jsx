@@ -2,6 +2,8 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 
+import { useAuth } from '../../hooks/useAuth';
+
 const pageTitles = {
   '/dashboard':     { title: 'Dashboard',          subtitle: 'System overview and cluster stats' },
   '/zones':         { title: 'Zone Management',    subtitle: 'Add, search, and manage delivery zones' },
@@ -14,6 +16,7 @@ const pageTitles = {
 
 const TopBar = () => {
   const { pathname } = useLocation();
+  const { admin } = useAuth();
   const page = pageTitles[pathname] || { title: 'SmartZone', subtitle: '' };
 
   return (
@@ -37,38 +40,6 @@ const TopBar = () => {
           {page.title}
         </h1>
         <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>{page.subtitle}</p>
-      </div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div
-          style={{
-            background: 'rgba(99,102,241,0.1)',
-            border: '1px solid rgba(99,102,241,0.2)',
-            borderRadius: '8px',
-            padding: '8px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Bell size={18} color="#6366f1" />
-        </div>
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-            borderRadius: '8px',
-            width: '36px',
-            height: '36px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 700,
-            fontSize: '0.875rem',
-            color: 'white',
-          }}
-        >
-          A
-        </div>
       </div>
     </header>
   );

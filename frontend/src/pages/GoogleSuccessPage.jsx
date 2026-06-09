@@ -16,10 +16,11 @@ const GoogleSuccessPage = () => {
     const token = params.get('token');
     const name = params.get('name');
     const email = params.get('email');
+    const avatar = params.get('avatar');
 
     if (token) {
       localStorage.setItem('token', token);
-      localStorage.setItem('admin', JSON.stringify({ email, name, role: 'admin', provider: 'google' }));
+      localStorage.setItem('admin', JSON.stringify({ email, name, avatar, role: 'admin', provider: 'google' }));
       toast.success(`Welcome, ${name || 'Admin'}! 🎉`);
       navigate('/dashboard', { replace: true });
     } else {

@@ -14,10 +14,12 @@ import VisualizationPage from './pages/VisualizationPage';
 import ReportsPage from './pages/ReportsPage';
 import DSAExplanationPage from './pages/DSAExplanationPage';
 import GoogleSuccessPage from './pages/GoogleSuccessPage';
+import CustomCursor from './components/ui/CustomCursor';
 
 function App() {
   return (
     <BrowserRouter>
+      <CustomCursor />
       <Toaster
         position="top-right"
         toastOptions={{

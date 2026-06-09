@@ -10,8 +10,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts';
 import { getClusterColor } from '../utils/clusterColors';
+import { useAuth } from '../hooks/useAuth';
 
 const DashboardPage = () => {
+  const { admin } = useAuth();
   const [stats, setStats] = useState({ zones: 0, routes: 0, clusters: 0, isolated: 0 });
   const [clusters, setClusters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,7 +80,7 @@ const DashboardPage = () => {
       >
         <div>
           <h2 style={{ color: '#f1f5f9', fontWeight: 800, fontSize: '1.3rem', margin: 0 }}>
-            Welcome back, Admin! 👋
+            Welcome back, {admin?.name || 'Admin'}! 👋
           </h2>
           <p style={{ color: '#94a3b8', margin: '4px 0 0', fontSize: '0.875rem' }}>
             Smart Delivery Zone Clustering · Union-Find DSU Demo

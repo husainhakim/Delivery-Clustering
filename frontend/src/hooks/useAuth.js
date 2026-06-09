@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { login as loginService } from '../services/authService';
+import { sendOtp as sendOtpService, verifyOtp as verifyOtpService } from '../services/authService';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('token'));
@@ -10,18 +10,33 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const login = useCallback(async (email, password) => {
+  const sendOtp = useCallback(async (email) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await loginService(email, password);
+      await sendOtpService(email);
+      return { success: true };
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to send OTP';
+      setError(message);
+      return { success: false, message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const verifyOtp = useCallback(async (email, otp) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await verifyOtpService(email, otp);
       localStorage.setItem('token', data.token);
       localStorage.setItem('admin', JSON.stringify(data.admin));
       setIsAuthenticated(true);
       setAdmin(data.admin);
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed';
+      const message = err.response?.data?.message || 'Invalid OTP';
       setError(message);
       return { success: false, message };
     } finally {
@@ -36,5 +51,5 @@ export const useAuth = () => {
     setAdmin(null);
   }, []);
 
-  return { isAuthenticated, admin, loading, error, login, logout };
+  return { isAuthenticated, admin, loading, error, sendOtp, verifyOtp, logout };
 };

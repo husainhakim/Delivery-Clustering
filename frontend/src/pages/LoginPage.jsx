@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // Google "G" SVG icon
@@ -15,20 +15,35 @@ const GoogleIcon = () => (
 );
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('admin@delivery.com');
-  const [password, setPassword] = useState('admin123');
-  const [showPassword, setShowPassword] = useState(false);
-  const { login, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1 = Enter Email, 2 = Enter OTP
+  const { sendOtp, verifyOtp, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSendOtp = async (e) => {
     e.preventDefault();
-    const result = await login(email, password);
+    if (!email) return;
+    
+    const result = await sendOtp(email);
     if (result.success) {
-      toast.success('Welcome back, Admin!');
+      toast.success('OTP sent to your email!');
+      setStep(2);
+    } else {
+      toast.error(result.message || 'Failed to send OTP');
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    if (!otp) return;
+
+    const result = await verifyOtp(email, otp);
+    if (result.success) {
+      toast.success('Login successful!');
       navigate('/dashboard');
     } else {
-      toast.error(result.message || 'Invalid credentials');
+      toast.error(result.message || 'Invalid OTP');
     }
   };
 
@@ -128,75 +143,94 @@ const LoginPage = () => {
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-            <span style={{ color: '#475569', fontSize: '0.75rem', fontWeight: 500 }}>or sign in with email</span>
+            <span style={{ color: '#475569', fontSize: '0.75rem', fontWeight: 500 }}>or sign in with email OTP</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
           </div>
 
-          {/* ── Email/Password Form ── */}
-          <form onSubmit={handleSubmit}>
-            {/* Email */}
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-                Email Address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-dark"
-                  style={{ paddingLeft: '38px' }}
-                  placeholder="admin@delivery.com"
-                  required
-                />
+          {/* ── Email OTP Form ── */}
+          {step === 1 ? (
+            <form onSubmit={handleSendOtp} className="animate-fadeIn">
+              {/* Email */}
+              <div style={{ marginBottom: '28px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-dark"
+                    style={{ paddingLeft: '38px' }}
+                    placeholder="you@example.com"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Password */}
-            <div style={{ marginBottom: '28px' }}>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
-                Password
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-dark"
-                  style={{ paddingLeft: '38px', paddingRight: '38px' }}
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 0 }}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '13px' }} disabled={loading || !email}>
+                {loading ? 'Sending...' : (
+                  <>
+                    Send OTP to Email <ArrowRight size={16} />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="animate-fadeIn">
+              {/* Read-only Email */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                  <input
+                    type="email"
+                    value={email}
+                    className="input-dark"
+                    style={{ paddingLeft: '38px', opacity: 0.7, cursor: 'not-allowed' }}
+                    disabled
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6366f1', fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    Edit
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '13px' }} disabled={loading}>
-              {loading ? 'Logging in...' : 'Login to Dashboard'}
-            </button>
-          </form>
+              {/* OTP Input */}
+              <div style={{ marginBottom: '28px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                  One-Time Password (OTP)
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#10b981' }} />
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="input-dark"
+                    style={{ paddingLeft: '38px', letterSpacing: '4px', fontSize: '1.1rem', fontWeight: 600 }}
+                    placeholder="123456"
+                    required
+                  />
+                </div>
+              </div>
 
-          {/* Demo hint */}
-          <div style={{
-            marginTop: '20px',
-            padding: '12px 16px',
-            background: 'rgba(99,102,241,0.08)',
-            border: '1px solid rgba(99,102,241,0.2)',
-            borderRadius: '10px',
-          }}>
-            <p style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: 600, margin: '0 0 4px' }}>Demo Credentials</p>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
-              Email: admin@delivery.com · Password: admin123
-            </p>
-          </div>
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '13px', background: 'linear-gradient(135deg, #10b981, #059669)' }} disabled={loading || otp.length !== 6}>
+                {loading ? 'Verifying...' : (
+                  <>
+                    Verify & Login <CheckCircle size={16} />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
 
         {/* Footer */}

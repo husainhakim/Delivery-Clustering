@@ -17,9 +17,17 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 globally
+// Handle 401 globally and prevent HTML fallback crashes
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // If the proxy is broken, Vite returns HTML (status 200). 
+    // We must reject it so the app doesn't crash from reading undefined properties.
+    const contentType = response.headers['content-type'];
+    if (contentType && contentType.includes('text/html')) {
+      return Promise.reject(new Error('API Proxy Error: Received HTML instead of JSON. Please restart your frontend terminal.'));
+    }
+    return response;
+  },
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
