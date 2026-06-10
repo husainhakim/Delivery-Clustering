@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { sendOtp as sendOtpService, verifyOtp as verifyOtpService } from '../services/authService';
+import { sendOtp as sendOtpService, verifyOtp as verifyOtpService, loginWithPassword as loginWithPasswordService } from '../services/authService';
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('token'));
@@ -44,6 +44,25 @@ export const useAuth = () => {
     }
   }, []);
 
+  const loginWithPassword = useCallback(async (email, password) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await loginWithPasswordService(email, password);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('admin', JSON.stringify(data.admin));
+      setIsAuthenticated(true);
+      setAdmin(data.admin);
+      return { success: true };
+    } catch (err) {
+      const message = err.response?.data?.message || 'Invalid email or password';
+      setError(message);
+      return { success: false, message };
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('admin');
@@ -51,5 +70,5 @@ export const useAuth = () => {
     setAdmin(null);
   }, []);
 
-  return { isAuthenticated, admin, loading, error, sendOtp, verifyOtp, logout };
+  return { isAuthenticated, admin, loading, error, sendOtp, verifyOtp, loginWithPassword, logout };
 };

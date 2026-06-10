@@ -17,8 +17,9 @@ const GoogleIcon = () => (
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
-  const [step, setStep] = useState(1); // 1 = Enter Email, 2 = Enter OTP
-  const { sendOtp, verifyOtp, loading } = useAuth();
+  const [password, setPassword] = useState('');
+  const [step, setStep] = useState(1); // 1 = Enter Email, 2 = Enter OTP, 3 = Enter Password
+  const { sendOtp, verifyOtp, loginWithPassword, loading } = useAuth();
   const navigate = useNavigate();
 
   const handleSendOtp = async (e) => {
@@ -44,6 +45,19 @@ const LoginPage = () => {
       navigate('/dashboard');
     } else {
       toast.error(result.message || 'Invalid OTP');
+    }
+  };
+
+  const handlePasswordLogin = async (e) => {
+    e.preventDefault();
+    if (!email || !password) return;
+
+    const result = await loginWithPassword(email, password);
+    if (result.success) {
+      toast.success('Login successful!');
+      navigate('/dashboard');
+    } else {
+      toast.error(result.message || 'Invalid password');
     }
   };
 
@@ -144,7 +158,7 @@ const LoginPage = () => {
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
-            <span style={{ color: '#475569', fontSize: '0.75rem', fontWeight: 500 }}>or sign in with email OTP</span>
+            <span style={{ color: '#475569', fontSize: '0.75rem', fontWeight: 500 }}>or sign in with email</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.08)' }} />
           </div>
 
@@ -177,8 +191,18 @@ const LoginPage = () => {
                   </>
                 )}
               </button>
+
+              <button 
+                type="button" 
+                onClick={() => setStep(3)} 
+                className="btn-secondary" 
+                style={{ width: '100%', justifyContent: 'center', padding: '13px', marginTop: '12px' }} 
+                disabled={!email}
+              >
+                Sign in with Password instead
+              </button>
             </form>
-          ) : (
+          ) : step === 2 ? (
             <form onSubmit={handleVerifyOtp} className="animate-fadeIn">
               {/* Read-only Email */}
               <div style={{ marginBottom: '16px' }}>
@@ -227,6 +251,59 @@ const LoginPage = () => {
                 {loading ? 'Verifying...' : (
                   <>
                     Verify & Login <CheckCircle size={16} />
+                  </>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handlePasswordLogin} className="animate-fadeIn">
+              {/* Read-only Email */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                  <input
+                    type="email"
+                    value={email}
+                    className="input-dark"
+                    style={{ paddingLeft: '38px', opacity: 0.7, cursor: 'not-allowed' }}
+                    disabled
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6366f1', fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    Edit
+                  </button>
+                </div>
+              </div>
+
+              {/* Password Input */}
+              <div style={{ marginBottom: '28px' }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
+                  Admin Password
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#10b981' }} />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-dark"
+                    style={{ paddingLeft: '38px' }}
+                    placeholder="Enter password"
+                    required
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '13px', background: 'linear-gradient(135deg, #10b981, #059669)' }} disabled={loading || !password}>
+                {loading ? 'Verifying...' : (
+                  <>
+                    Sign In <CheckCircle size={16} />
                   </>
                 )}
               </button>

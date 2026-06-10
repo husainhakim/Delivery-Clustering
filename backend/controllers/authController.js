@@ -27,6 +27,16 @@ const sendOtp = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Please provide an email address' });
     }
 
+    // Check if the email is in the comma-separated ADMIN_EMAIL list
+    const allowedAdmins = process.env.ADMIN_EMAIL 
+      ? process.env.ADMIN_EMAIL.split(',').map(e => e.trim().toLowerCase())
+      : [];
+
+    if (!allowedAdmins.includes(email.toLowerCase())) {
+      console.warn(`Unauthorized OTP request from: ${email}`);
+      return res.status(403).json({ success: false, message: 'Unauthorized. Your email is not whitelisted as an admin.' });
+    }
+
     // Generate a 6-digit numeric OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -147,4 +157,49 @@ const getMe = async (req, res) => {
   });
 };
 
-export { sendOtp, verifyOtp, googleCallback, getMe };
+// @desc    Verify password and Login
+// @route   POST /api/auth/login-password
+// @access  Public
+const loginWithPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide email and password' });
+    }
+
+    // Check if the email is in the comma-separated ADMIN_EMAIL list
+    const allowedAdmins = process.env.ADMIN_EMAIL 
+      ? process.env.ADMIN_EMAIL.split(',').map(e => e.trim().toLowerCase())
+      : [];
+
+    if (!allowedAdmins.includes(email.toLowerCase())) {
+      console.warn(`Unauthorized password login attempt from: ${email}`);
+      return res.status(403).json({ success: false, message: 'Unauthorized. Your email is not whitelisted as an admin.' });
+    }
+
+    // Check password against the environment variable
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword || password !== adminPassword) {
+      return res.status(401).json({ success: false, message: 'Invalid password' });
+    }
+
+    // Issue JWT token
+    const token = jwt.sign(
+      { email, role: 'admin' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      admin: { email, role: 'admin' },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+};
+
+export { sendOtp, verifyOtp, loginWithPassword, googleCallback, getMe };

@@ -12,9 +12,22 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your_googl
         proxy: true,
       },
       (accessToken, refreshToken, profile, done) => {
+        const email = profile.emails?.[0]?.value?.toLowerCase() || '';
+        
+        // Check if the email is in the comma-separated ADMIN_EMAIL list
+        const allowedAdmins = process.env.ADMIN_EMAIL 
+          ? process.env.ADMIN_EMAIL.split(',').map(e => e.trim().toLowerCase())
+          : [];
+
+        if (!allowedAdmins.includes(email)) {
+          console.warn(`Unauthorized login attempt from Google account: ${email}`);
+          // Passing false as the user rejects the login
+          return done(null, false, { message: 'Unauthorized. Your email is not whitelisted as an admin.' });
+        }
+
         const user = {
           googleId: profile.id,
-          email: profile.emails?.[0]?.value || '',
+          email: email,
           name: profile.displayName,
           avatar: profile.photos?.[0]?.value || '',
           role: 'admin',
