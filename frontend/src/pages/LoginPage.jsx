@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Zap, Mail, Lock, ArrowRight, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -21,6 +21,20 @@ const LoginPage = () => {
   const [step, setStep] = useState(1); // 1 = Enter Email, 2 = Enter OTP, 3 = Enter Password
   const { sendOtp, verifyOtp, loginWithPassword, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const error = params.get('error');
+    if (error === 'unauthorized') {
+      toast.error('Unauthorized! Your Google email is not whitelisted as an admin.', { duration: 5000 });
+      // Clean up URL so it doesn't keep showing on refresh
+      navigate('/login', { replace: true });
+    } else if (error === 'oauth_failed') {
+      toast.error('Google login failed. Please try again.');
+      navigate('/login', { replace: true });
+    }
+  }, [location, navigate]);
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
@@ -197,7 +211,6 @@ const LoginPage = () => {
                 onClick={() => setStep(3)} 
                 className="btn-secondary" 
                 style={{ width: '100%', justifyContent: 'center', padding: '13px', marginTop: '12px' }} 
-                disabled={!email}
               >
                 Sign in with Password instead
               </button>
@@ -257,27 +270,22 @@ const LoginPage = () => {
             </form>
           ) : (
             <form onSubmit={handlePasswordLogin} className="animate-fadeIn">
-              {/* Read-only Email */}
+              {/* Editable Email */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>
                   Email Address
                 </label>
                 <div style={{ position: 'relative' }}>
-                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                  <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />
                   <input
                     type="email"
                     value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="input-dark"
-                    style={{ paddingLeft: '38px', opacity: 0.7, cursor: 'not-allowed' }}
-                    disabled
+                    style={{ paddingLeft: '38px' }}
+                    placeholder="you@example.com"
+                    required
                   />
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#6366f1', fontSize: '0.75rem', cursor: 'pointer' }}
-                  >
-                    Edit
-                  </button>
                 </div>
               </div>
 

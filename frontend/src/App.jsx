@@ -14,6 +14,7 @@ import VisualizationPage from './pages/VisualizationPage';
 import ReportsPage from './pages/ReportsPage';
 import DSAExplanationPage from './pages/DSAExplanationPage';
 import GoogleSuccessPage from './pages/GoogleSuccessPage';
+import NotFoundPage from './pages/NotFoundPage';
 import CustomCursor from './components/ui/CustomCursor';
 
 function App() {
@@ -59,9 +60,11 @@ function App() {
           <Route path="/dsa"           element={<DSAExplanationPage />} />
         </Route>
 
-        {/* Default redirect */}
+        {/* Default redirect for / */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        
+        {/* 404 Catch-all */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
