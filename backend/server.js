@@ -25,6 +25,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Trust proxy for Render load balancers (required for HTTPS callbacks & secure cookies)
+app.set('trust proxy', 1);
+
 // Session (required for Passport OAuth)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'smartzone_session_secret',
