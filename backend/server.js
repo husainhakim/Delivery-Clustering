@@ -5,6 +5,9 @@ import cors from 'cors';
 import session from 'express-session';
 import passport from './config/passport.js';
 import connectDB from './config/db.js';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 
 import authRoutes from './routes/authRoutes.js';
 import zoneRoutes from './routes/zoneRoutes.js';
@@ -18,12 +21,26 @@ connectDB();
 const app = express();
 
 // Middleware
+app.use(helmet()); // Secure HTTP headers
+
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
 }));
+
+// Rate limiting: max 200 requests per 15 minutes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  message: { success: false, message: 'Too many requests from this IP, please try again later.' }
+});
+app.use('/api', limiter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Data Sanitization against NoSQL query injection
+app.use(mongoSanitize());
 
 // Trust proxy for Render load balancers (required for HTTPS callbacks & secure cookies)
 app.set('trust proxy', 1);
@@ -33,7 +50,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'smartzone_session_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 
+  },
 }));
 
 // Passport

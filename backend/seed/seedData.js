@@ -20,21 +20,28 @@ import Route from '../models/Route.js';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/smart_delivery_clustering';
 
 const zonesData = [
-  { name: 'Mumbai North',   city: 'Mumbai', zoneCode: 'ZN001' },
-  { name: 'Mumbai South',   city: 'Mumbai', zoneCode: 'ZN002' },
-  { name: 'Mumbai Central', city: 'Mumbai', zoneCode: 'ZN003' },
-  { name: 'Andheri',        city: 'Mumbai', zoneCode: 'ZN004' },
-  { name: 'Bandra',         city: 'Mumbai', zoneCode: 'ZN005' },
-  { name: 'Thane',          city: 'Mumbai', zoneCode: 'ZN006' },
-  { name: 'Dadar',          city: 'Mumbai', zoneCode: 'ZN007' },
-  { name: 'Malad',          city: 'Mumbai', zoneCode: 'ZN008' },
-  { name: 'Borivali',       city: 'Mumbai', zoneCode: 'ZN009' }, // Isolated
-  { name: 'Navi Mumbai',    city: 'Mumbai', zoneCode: 'ZN010' },
-  { name: 'Kurla',          city: 'Mumbai', zoneCode: 'ZN011' },
-  { name: 'Pune East',      city: 'Pune',   zoneCode: 'ZN012' },
-  { name: 'Pune West',      city: 'Pune',   zoneCode: 'ZN013' },
-  { name: 'Pune Central',   city: 'Pune',   zoneCode: 'ZN014' },
-  { name: 'Hadapsar',       city: 'Pune',   zoneCode: 'ZN015' },
+  // Central Line Cluster
+  { name: 'Kurla (Central)', city: 'Mumbai', zoneCode: 'ZN001' },
+  { name: 'Matunga',         city: 'Mumbai', zoneCode: 'ZN002' },
+  { name: 'Dadar (Central)', city: 'Mumbai', zoneCode: 'ZN003' },
+  { name: 'Byculla',         city: 'Mumbai', zoneCode: 'ZN004' },
+  { name: 'CSMT',            city: 'Mumbai', zoneCode: 'ZN005' },
+  // Harbour Line Cluster
+  { name: 'Kurla (Harbour)', city: 'Mumbai', zoneCode: 'ZN006' },
+  { name: 'Govandi',         city: 'Mumbai', zoneCode: 'ZN007' },
+  { name: 'Vashi',           city: 'Mumbai', zoneCode: 'ZN008' },
+  { name: 'Nerul',           city: 'Mumbai', zoneCode: 'ZN009' },
+  { name: 'Belapur',         city: 'Mumbai', zoneCode: 'ZN010' },
+  { name: 'Panvel',          city: 'Mumbai', zoneCode: 'ZN011' },
+  // Western Line Cluster
+  { name: 'Churchgate',      city: 'Mumbai', zoneCode: 'ZN012' },
+  { name: 'Mumbai Central',  city: 'Mumbai', zoneCode: 'ZN013' },
+  { name: 'Dadar (Western)', city: 'Mumbai', zoneCode: 'ZN014' },
+  { name: 'Bandra',          city: 'Mumbai', zoneCode: 'ZN015' },
+  { name: 'Andheri',         city: 'Mumbai', zoneCode: 'ZN016' },
+  { name: 'Borivali',        city: 'Mumbai', zoneCode: 'ZN017' },
+  // Isolated Pune
+  { name: 'Pune Hub',        city: 'Pune',   zoneCode: 'ZN018' },
 ];
 
 const seed = async () => {
@@ -47,49 +54,26 @@ const seed = async () => {
     console.log('🗑️  Cleared existing zones and routes');
 
     const routePairs = [
-      // === LARGE CLUSTER (ZN001–ZN008, 8 Mumbai core zones) ===
-      ['ZN001', 'ZN002'],
-      ['ZN002', 'ZN003'],
-      ['ZN003', 'ZN004'],
-      ['ZN004', 'ZN005'],
-      ['ZN005', 'ZN007'],
-      ['ZN006', 'ZN001'],
-      ['ZN008', 'ZN004'],
-      ['ZN007', 'ZN006'],
-      // === SMALL CLUSTER (ZN010 + ZN011) ===
-      ['ZN010', 'ZN011'],
-      // === MEDIUM CLUSTER (Pune: ZN012–ZN015) ===
-      ['ZN012', 'ZN013'],
-      ['ZN013', 'ZN014'],
-      ['ZN014', 'ZN015'],
-      ['ZN015', 'ZN012'],
-      // ZN009 Borivali — intentionally isolated
-    ];
+      // === CENTRAL LINE CLUSTER ===
+      ['ZN001', 'ZN002'], // Kurla (C) -> Matunga
+      ['ZN002', 'ZN003'], // Matunga -> Dadar (C)
+      ['ZN003', 'ZN004'], // Dadar (C) -> Byculla
+      ['ZN004', 'ZN005'], // Byculla -> CSMT
 
-    // Dynamic Generation of MANY zones
-    const cities = ['Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad'];
-    let nextZoneCode = 100;
-    
-    cities.forEach(city => {
-      const cityZones = [];
-      // Generate 7 zones per city to get ~50 total zones
-      for (let i = 1; i <= 7; i++) {
-        const code = `ZN${nextZoneCode++}`;
-        const newZone = { name: `${city} Zone ${i}`, city: city, zoneCode: code };
-        zonesData.push(newZone);
-        cityZones.push(code);
-      }
-      
-      // Connect them together to form a massive cluster for the city
-      for (let i = 0; i < cityZones.length - 1; i++) {
-        // Connect sequentially to guarantee one big cluster
-        routePairs.push([cityZones[i], cityZones[i+1]]);
-        // Add some random cross-connections
-        if (i + 3 < cityZones.length) {
-          routePairs.push([cityZones[i], cityZones[i+3]]);
-        }
-      }
-    });
+      // === HARBOUR LINE CLUSTER ===
+      ['ZN006', 'ZN007'], // Kurla (H) -> Govandi
+      ['ZN007', 'ZN008'], // Govandi -> Vashi
+      ['ZN008', 'ZN009'], // Vashi -> Nerul
+      ['ZN009', 'ZN010'], // Nerul -> Belapur
+      ['ZN010', 'ZN011'], // Belapur -> Panvel
+
+      // === WESTERN LINE CLUSTER ===
+      ['ZN012', 'ZN013'], // Churchgate -> Mumbai Central
+      ['ZN013', 'ZN014'], // Mumbai Central -> Dadar (W)
+      ['ZN014', 'ZN015'], // Dadar (W) -> Bandra
+      ['ZN015', 'ZN016'], // Bandra -> Andheri
+      ['ZN016', 'ZN017'], // Andheri -> Borivali
+    ];
 
     const zones = await Zone.insertMany(zonesData);
     console.log(`📍 Inserted ${zones.length} zones`);
@@ -106,10 +90,8 @@ const seed = async () => {
     console.log(`🔗 Inserted ${routeDocs.length} routes`);
 
     console.log('\n✨ Seed complete! Expected clusters:');
-    console.log('   🟣 Large cluster  → Mumbai North, South, Central, Andheri, Bandra, Thane, Dadar, Malad (8 zones)');
-    console.log('   🔵 Small cluster  → Navi Mumbai, Kurla (2 zones)');
-    console.log('   🟢 Medium cluster → Pune East, West, Central, Hadapsar (4 zones)');
-    console.log('   🔴 Isolated zone  → Borivali (1 zone)\n');
+    console.log('   🟣 Massive Mumbai Network (Central, Harbour, and Western connected at Kurla and Dadar)');
+    console.log('   🔴 Isolated zone  → Pune Hub (1 zone)\n');
 
     process.exit(0);
   } catch (err) {
