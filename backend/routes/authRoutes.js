@@ -23,7 +23,9 @@ router.get(
   '/google/callback',
   (req, res, next) => {
     passport.authenticate('google', { session: false }, (err, user, info) => {
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const frontendUrl = process.env.NODE_ENV === 'production'
+        ? 'https://delivery-clustering.vercel.app'
+        : 'http://localhost:5173';
       
       if (err) {
         console.error('OAuth Error:', err);

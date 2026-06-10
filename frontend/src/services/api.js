@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const IS_DEV = import.meta.env.MODE === 'development';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://delivery-clustering.onrender.com/api',
+  baseURL: IS_DEV ? 'http://localhost:4000/api' : 'https://delivery-clustering.onrender.com/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

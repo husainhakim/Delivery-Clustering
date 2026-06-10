@@ -8,7 +8,9 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your_googl
       {
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: 'https://delivery-clustering.onrender.com/api/auth/google/callback',
+        callbackURL: process.env.NODE_ENV === 'production' 
+          ? 'https://delivery-clustering.onrender.com/api/auth/google/callback' 
+          : 'http://localhost:4000/api/auth/google/callback',
         proxy: true,
       },
       (accessToken, refreshToken, profile, done) => {

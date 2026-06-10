@@ -142,10 +142,14 @@ const googleCallback = (req, res) => {
     );
 
     // Redirect to frontend with token as query param (frontend will pick it up)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://delivery-clustering.vercel.app'
+      : 'http://localhost:5173';
     res.redirect(`${frontendUrl}/auth/google/success?token=${token}&name=${encodeURIComponent(user.name)}&email=${encodeURIComponent(user.email)}&avatar=${encodeURIComponent(user.avatar || '')}`);
   } catch (error) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    const frontendUrl = process.env.NODE_ENV === 'production'
+      ? 'https://delivery-clustering.vercel.app'
+      : 'http://localhost:5173';
     res.redirect(`${frontendUrl}/login?error=oauth_failed`);
   }
 };
