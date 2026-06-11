@@ -9,7 +9,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your_googl
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.NODE_ENV === 'production' 
-          ? 'https://delivery-clustering.onrender.com/api/auth/google/callback' 
+          ? 'https://delivery-clustering-9w3c.vercel.app/api/auth/google/callback' 
           : 'http://localhost:4000/api/auth/google/callback',
         proxy: true,
       },

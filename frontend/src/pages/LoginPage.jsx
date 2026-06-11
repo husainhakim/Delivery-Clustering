@@ -78,7 +78,7 @@ const LoginPage = () => {
   const handleGoogleLogin = () => {
     // Redirect browser to backend Google OAuth initiation
     const IS_DEV = import.meta.env.MODE === 'development';
-    const apiUrl = IS_DEV ? 'http://localhost:4000/api' : 'https://delivery-clustering.onrender.com/api';
+    const apiUrl = IS_DEV ? 'http://localhost:4000/api' : 'https://delivery-clustering-9w3c.vercel.app/api';
     window.location.href = `${apiUrl}/auth/google`;
   };
 
