@@ -35,7 +35,9 @@ const sendOtp = async (req, res) => {
       ? process.env.ADMIN_EMAIL.split(',').map(e => e.trim().toLowerCase())
       : [];
 
-    if (!allowedAdmins.includes(email.toLowerCase())) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!allowedAdmins.includes(normalizedEmail)) {
       console.warn(`Unauthorized OTP request from: ${email}`);
       return res.status(403).json({ success: false, message: 'Unauthorized. Your email is not whitelisted as an admin.' });
     }

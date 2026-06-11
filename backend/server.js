@@ -24,9 +24,13 @@ const app = express();
 app.use(helmet()); // Secure HTTP headers
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://delivery-clustering.vercel.app' 
-    : 'http://localhost:5173',
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (origin.startsWith('http://localhost:') || origin.endsWith('.vercel.app')) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
   credentials: true,
 }));
 

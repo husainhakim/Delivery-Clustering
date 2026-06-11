@@ -17,7 +17,12 @@ export const useAuth = () => {
       await sendOtpService(email);
       return { success: true };
     } catch (err) {
-      const message = err.response?.data?.message || 'Failed to send OTP';
+      let message = 'Failed to send OTP';
+      if (err.message === 'Network Error' || !err.response) {
+        message = 'Cannot connect to server. Please ensure the backend is running.';
+      } else {
+        message = err.response?.data?.message || message;
+      }
       setError(message);
       return { success: false, message };
     } finally {
