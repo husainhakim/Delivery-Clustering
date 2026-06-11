@@ -55,7 +55,6 @@ const DSAExplanationPage = () => {
               DSA Explanation: Union-Find
             </h1>
             <p style={{ color: '#6366f1', fontSize: '0.875rem', margin: '4px 0 0', fontWeight: 600 }}>
-              ITM Skills University · DSA-3 · B.Tech CSE 2023-27 · Semester VI
             </p>
           </div>
         </div>

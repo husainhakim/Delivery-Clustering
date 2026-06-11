@@ -322,7 +322,6 @@ const LoginPage = () => {
 
         {/* Footer */}
         <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.75rem', marginTop: '24px' }}>
-          ITM Skills University · DSA-3 Project · B.Tech CSE 2023-27
         </p>
       </div>
     </div>
