@@ -54,15 +54,12 @@ const DashboardPage = () => {
     <div className="page-enter">
       {/* Welcome banner */}
       <div
-        className="glass-card"
+        className="glass-card flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
         style={{
           padding: '24px 32px',
           marginBottom: '28px',
           background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1))',
           border: '1px solid rgba(99,102,241,0.3)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
         }}
       >
         <div>
@@ -73,7 +70,7 @@ const DashboardPage = () => {
             Smart Delivery Zone Clustering · Live Dashboard
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div className="flex flex-wrap items-center gap-4 mt-2 md:mt-0">
           <button 
             className="btn-primary bg-yellow-600 hover:bg-yellow-700 text-white" 
             style={{ background: '#ca8a04' }}
