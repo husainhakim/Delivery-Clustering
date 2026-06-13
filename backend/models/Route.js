@@ -12,6 +12,11 @@ const RouteSchema = new mongoose.Schema(
       ref: 'Zone',
       required: [true, 'Destination zone is required'],
     },
+    status: {
+      type: String,
+      enum: ['active', 'disrupted'],
+      default: 'active',
+    },
   },
   {
     timestamps: true,

@@ -4,7 +4,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { Plus, Trash2, Search, MapPin, X } from 'lucide-react';
 
 const AddZoneModal = ({ onClose, onCreate }) => {
-  const [form, setForm] = useState({ name: '', city: '', zoneCode: '' });
+  const [form, setForm] = useState({ name: '', city: '', zoneCode: '', courierCount: 0, activeOrders: 0 });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -26,18 +26,21 @@ const AddZoneModal = ({ onClose, onCreate }) => {
         </div>
         <form onSubmit={handleSubmit}>
           {[
-            { label: 'Zone Name', key: 'name', placeholder: 'e.g. Mumbai North' },
-            { label: 'City', key: 'city', placeholder: 'e.g. Mumbai' },
-            { label: 'Zone Code', key: 'zoneCode', placeholder: 'e.g. ZN001' },
-          ].map(({ label, key, placeholder }) => (
+            { label: 'Zone Name', key: 'name', placeholder: 'e.g. Mumbai North', type: 'text' },
+            { label: 'City', key: 'city', placeholder: 'e.g. Mumbai', type: 'text' },
+            { label: 'Zone Code', key: 'zoneCode', placeholder: 'e.g. ZN001', type: 'text' },
+            { label: 'Courier Count', key: 'courierCount', placeholder: '0', type: 'number' },
+            { label: 'Active Orders', key: 'activeOrders', placeholder: '0', type: 'number' },
+          ].map(({ label, key, placeholder, type }) => (
             <div key={key} style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', marginBottom: '6px' }}>{label}</label>
               <input
                 className="input-dark"
+                type={type}
                 placeholder={placeholder}
                 value={form[key]}
-                onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                required
+                onChange={(e) => setForm({ ...form, [key]: type === 'number' ? Number(e.target.value) : e.target.value })}
+                required={type === 'text'}
               />
             </div>
           ))}
@@ -128,6 +131,8 @@ const ZonesPage = () => {
                 <th>Zone Name</th>
                 <th>City</th>
                 <th>Zone Code</th>
+                <th>Couriers</th>
+                <th>Orders</th>
                 <th>Created</th>
                 <th>Action</th>
               </tr>
@@ -135,7 +140,7 @@ const ZonesPage = () => {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '60px', color: '#475569' }}>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '60px', color: '#475569' }}>
                     <MapPin size={40} style={{ margin: '0 auto 12px', display: 'block', opacity: 0.3 }} />
                     {search ? 'No zones match your search' : 'No zones added yet'}
                   </td>
@@ -159,6 +164,8 @@ const ZonesPage = () => {
                         {zone.zoneCode}
                       </span>
                     </td>
+                    <td style={{ color: '#f1f5f9' }}>{zone.courierCount || 0}</td>
+                    <td style={{ color: '#f1f5f9' }}>{zone.activeOrders || 0}</td>
                     <td style={{ color: '#64748b', fontSize: '0.8rem' }}>
                       {new Date(zone.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
