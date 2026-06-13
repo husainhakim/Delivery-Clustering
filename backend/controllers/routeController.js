@@ -1,5 +1,6 @@
 import Route from '../models/Route.js';
 import Zone from '../models/Zone.js';
+import loggerService from '../services/loggerService.js';
 
 // @desc    Get all routes
 // @route   GET /api/routes
@@ -54,6 +55,8 @@ const addRoute = async (req, res) => {
       { path: 'destinationZone', select: 'name city zoneCode' },
     ]);
 
+    loggerService.logEvent('ROUTE_ADDED', { routeId: route._id, sourceZone, destinationZone });
+
     res.status(201).json({ success: true, message: 'Route added successfully', data: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
@@ -70,6 +73,9 @@ const deleteRoute = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Route not found' });
     }
     await Route.findByIdAndDelete(req.params.id);
+
+    loggerService.logEvent('ROUTE_REMOVED', { routeId: req.params.id, sourceZone: route.sourceZone, destinationZone: route.destinationZone });
+
     res.status(200).json({ success: true, message: 'Route deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error: error.message });

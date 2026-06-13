@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { getReports } from '../services/clusterService';
+import { getZoneManagementReport } from '../services/clusterService';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { Download, Award, Minimize2, Network, AlertCircle } from 'lucide-react';
-import { getClusterColor } from '../utils/clusterColors';
-import { exportToCSV, flattenClustersForCSV } from '../utils/csvExport';
+import { Users, Package, AlertCircle, MapPin } from 'lucide-react';
+import { Badge } from '../components/ui/Badge';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import toast from 'react-hot-toast';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
 const ReportsPage = () => {
@@ -16,10 +16,10 @@ const ReportsPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = await getReports();
+        const data = await getZoneManagementReport();
         setReport(data.data);
       } catch {
-        toast.error('Failed to load reports');
+        toast.error('Failed to load zone management report');
       } finally {
         setLoading(false);
       }
@@ -27,165 +27,138 @@ const ReportsPage = () => {
     load();
   }, []);
 
-  const handleExport = () => {
-    if (!report?.allClusters) return;
-    const rows = flattenClustersForCSV(report.allClusters);
-    exportToCSV(rows, 'cluster_report.csv');
-    toast.success('CSV exported!');
-  };
-
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '100px' }}>
-        <LoadingSpinner size="lg" text="Loading reports..." />
+        <LoadingSpinner size="lg" text="Generating report..." />
       </div>
     );
   }
 
-  const barData = (report?.clusterSizeDistribution || []).map((item, i) => ({
-    ...item,
-    fill: getClusterColor(i, item.isIsolated).bg,
-  }));
+  const {
+    totalActiveZones,
+    totalCouriers,
+    averageLoadImbalancePercentage,
+    zoneMetrics,
+    clusterTrends,
+    equitableAllocation
+  } = report || {};
 
   return (
-    <div className="page-enter">
-      {/* Header */}
-      <div className="flex-header">
-        <div>
-          <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: 0 }}>Reports</h2>
-          <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0' }}>Cluster analytics and export</p>
-        </div>
-        <button className="btn-primary" id="export-csv-btn" onClick={handleExport}>
-          <Download size={16} /> Export CSV
-        </button>
+    <div className="page-enter pb-10">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-1">Zone Management Report</h2>
+        <p className="text-gray-400 text-sm">Workforce allocation and balance analytics</p>
       </div>
 
-      {/* Summary cards */}
-      <div className="dashboard-stats-grid">
-        {[
-          { label: 'Total Clusters', value: report?.totalClusters, icon: Network, color: '#6366f1' },
-          { label: 'Isolated Zones', value: report?.isolatedZones, icon: AlertCircle, color: '#ef4444' },
-          { label: 'Largest Cluster', value: report?.largestCluster?.size + ' zones', icon: Award, color: '#10b981' },
-          { label: 'Smallest Cluster', value: report?.smallestCluster?.size + ' zones', icon: Minimize2, color: '#f59e0b' },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className="glass-card" style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ background: `${color}20`, padding: '10px', borderRadius: '10px', flexShrink: 0 }}>
-              <Icon size={22} color={color} />
-            </div>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-indigo-500/20 border">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-indigo-500/20 rounded-lg text-indigo-400"><MapPin size={24}/></div>
             <div>
-              <p style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f1f5f9', margin: 0 }}>{value ?? '—'}</p>
-              <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0 }}>{label}</p>
+              <p className="text-gray-400 text-sm">Total Active Zones</p>
+              <p className="text-2xl font-bold text-white">{totalActiveZones}</p>
             </div>
-          </div>
-        ))}
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-blue-500/20 border">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-blue-500/20 rounded-lg text-blue-400"><Users size={24}/></div>
+            <div>
+              <p className="text-gray-400 text-sm">Total Couriers</p>
+              <p className="text-2xl font-bold text-white">{totalCouriers}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-amber-500/20 border">
+          <CardContent className="p-6 flex items-center gap-4">
+            <div className="p-3 bg-amber-500/20 rounded-lg text-amber-400"><AlertCircle size={24}/></div>
+            <div>
+              <p className="text-gray-400 text-sm">Avg Load Imbalance</p>
+              <p className="text-2xl font-bold text-white">{averageLoadImbalancePercentage}%</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Charts + Table */}
-      <div className="dashboard-charts-grid">
-        {/* Cluster size bar chart */}
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <h3 style={{ color: '#f1f5f9', fontWeight: 700, margin: '0 0 20px', fontSize: '1rem' }}>
-            Cluster Size Distribution
-          </h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={barData} margin={{ top: 0, right: 0, left: -20, bottom: 40 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="name" stroke="#64748b" fontSize={10} angle={-30} textAnchor="end" interval={0} />
-              <YAxis stroke="#64748b" fontSize={11} />
-              <Tooltip contentStyle={{ background: '#0f1629', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '10px', color: '#f1f5f9', fontSize: '0.8rem' }} />
-              <Bar dataKey="size" radius={[6, 6, 0, 0]}>
-                {barData.map((entry, i) => (
-                  <Cell key={i} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Bar chart: courier count per zone */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-[1rem] text-gray-200">Couriers per Zone</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={zoneMetrics} margin={{ top: 20, right: 30, left: -20, bottom: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="name" stroke="#9ca3af" fontSize={10} angle={-45} textAnchor="end" />
+                <YAxis stroke="#9ca3af" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }} />
+                <Bar dataKey="couriers" name="Couriers" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-        {/* Highlights */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {[
-            { title: '🏆 Largest Cluster', cluster: report?.largestCluster, colorIdx: 0 },
-            { title: '🔹 Smallest Cluster', cluster: report?.smallestCluster, colorIdx: 2 },
-          ].map(({ title, cluster, colorIdx }) => {
-            if (!cluster) return null;
-            const color = getClusterColor(colorIdx, cluster.isIsolated);
-            return (
-              <div key={title} className="glass-card" style={{ padding: '20px', borderColor: color.border }}>
-                <p style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.8rem', margin: '0 0 10px' }}>{title}</p>
-                <p style={{ fontWeight: 800, color: color.text, fontSize: '1.1rem', margin: '0 0 8px' }}>
-                  Cluster {cluster.clusterId} — {cluster.size} zones
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                  {cluster.zones?.map((z) => (
-                    <span key={z._id} style={{
-                      background: color.light, color: color.text,
-                      border: `1px solid ${color.border}`, padding: '2px 8px',
-                      borderRadius: '20px', fontSize: '0.7rem', fontWeight: 600,
-                    }}>
-                      {z.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {/* Line chart: order volume trends per cluster */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-[1rem] text-gray-200">Order Volume per Cluster</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={clusterTrends} margin={{ top: 20, right: 30, left: -20, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="name" stroke="#9ca3af" fontSize={12} />
+                <YAxis stroke="#9ca3af" fontSize={12} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none', borderRadius: '8px' }} />
+                <Line type="monotone" dataKey="volume" name="Orders" stroke="#8b5cf6" strokeWidth={3} dot={{ r: 5 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Full cluster table */}
-      <div className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
-          <h3 style={{ color: '#f1f5f9', fontWeight: 700, margin: 0, fontSize: '1rem' }}>All Clusters</h3>
-        </div>
-        <div className="table-responsive">
-          <table className="table-dark">
-          <thead>
-            <tr>
-              <th>Cluster</th>
-              <th>Type</th>
-              <th>Zones</th>
-              <th>Zone Names</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(report?.allClusters || []).map((cluster, i) => {
-              const color = getClusterColor(i, cluster.isIsolated);
-              return (
-                <tr key={cluster.clusterId}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: color.bg }} />
-                      <span style={{ color: '#f1f5f9', fontWeight: 600 }}>
-                        {cluster.isIsolated ? 'Isolated' : `Cluster ${cluster.clusterId}`}
-                      </span>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={cluster.isIsolated ? 'badge badge-isolated' : 'badge badge-connected'}>
-                      {cluster.isIsolated ? 'Isolated' : 'Connected'}
-                    </span>
-                  </td>
-                  <td style={{ fontWeight: 700, color: color.text }}>{cluster.size}</td>
-                  <td style={{ maxWidth: '400px' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {cluster.zones.map((z) => (
-                        <span key={z._id} style={{
-                          background: color.light, color: color.text, border: `1px solid ${color.border}`,
-                          padding: '2px 7px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600,
-                        }}>
-                          {z.name}
-                        </span>
-                      ))}
-                    </div>
+      {/* Table: equitable allocation metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-[1rem] text-gray-200">Equitable Allocation Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-900 border-b border-gray-700 text-gray-400 text-sm">
+                <th className="py-4 px-6 font-semibold">Cluster</th>
+                <th className="py-4 px-6 font-semibold">Avg Couriers / Zone</th>
+                <th className="py-4 px-6 font-semibold">Avg Orders / Zone</th>
+                <th className="py-4 px-6 font-semibold">Variance / Health</th>
+              </tr>
+            </thead>
+            <tbody>
+              {equitableAllocation?.map((row, idx) => (
+                <tr key={idx} className="border-b border-gray-800 hover:bg-gray-800/50">
+                  <td className="py-4 px-6 font-medium text-gray-200">Cluster {row.clusterId}</td>
+                  <td className="py-4 px-6 text-gray-300">{row.couriersPerZone}</td>
+                  <td className="py-4 px-6 text-gray-300">{row.avgOrderLoad}</td>
+                  <td className="py-4 px-6">
+                    <Badge variant={row.varianceIndicator === 'high' ? 'danger' : 'success'}>
+                      {row.varianceIndicator === 'high' ? 'High Imbalance' : 'Healthy'}
+                    </Badge>
                   </td>
                 </tr>
-              );
-            })}
+              ))}
+              {(!equitableAllocation || equitableAllocation.length === 0) && (
+                <tr>
+                  <td colSpan={4} className="py-8 text-center text-gray-500">No clusters found</td>
+                </tr>
+              )}
             </tbody>
           </table>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
