@@ -87,7 +87,7 @@ const ZonesPage = () => {
       )}
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="flex-header">
         <div>
           <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: 0 }}>Delivery Zones</h2>
           <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0' }}>
@@ -120,7 +120,8 @@ const ZonesPage = () => {
             <LoadingSpinner text="Loading zones..." />
           </div>
         ) : (
-          <table className="table-dark">
+          <div className="table-responsive">
+            <table className="table-dark">
             <thead>
               <tr>
                 <th>#</th>
@@ -171,6 +172,7 @@ const ZonesPage = () => {
               )}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

@@ -93,7 +93,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Stat cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '32px' }}>
+      <div className="dashboard-stats-grid">
         <StatCard title="Total Zones" value={stats.zones} icon={MapPin}
           gradient="linear-gradient(135deg, #6366f1, #8b5cf6)" delay={0}
           subtitle="Delivery regions" />
@@ -109,7 +109,7 @@ const DashboardPage = () => {
       </div>
 
       {/* Charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div className="dashboard-charts-grid">
         {/* Pie Chart */}
         <div className="glass-card animate-fadeInUp delay-400" style={{ padding: '24px' }}>
           <h3 style={{ color: '#f1f5f9', fontWeight: 700, marginTop: 0, marginBottom: '20px', fontSize: '1rem' }}>

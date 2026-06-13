@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Bell } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 
 import { useAuth } from '../../hooks/useAuth';
 
@@ -14,7 +14,7 @@ const pageTitles = {
   '/dsa':           { title: 'DSA Explanation',    subtitle: 'Union-Find algorithm deep dive' },
 };
 
-const TopBar = () => {
+const TopBar = ({ onMenuClick }) => {
   const { pathname } = useLocation();
   const { admin } = useAuth();
   const page = pageTitles[pathname] || { title: 'SmartZone', subtitle: '' };
@@ -36,10 +36,17 @@ const TopBar = () => {
       }}
     >
       <div>
-        <h1 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>
-          {page.title}
-        </h1>
-        <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>{page.subtitle}</p>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button className="mobile-menu-btn" onClick={onMenuClick}>
+            <Menu size={24} />
+          </button>
+          <div>
+            <h1 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f1f5f9', margin: 0 }}>
+              {page.title}
+            </h1>
+            <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>{page.subtitle}</p>
+          </div>
+        </div>
       </div>
     </header>
   );

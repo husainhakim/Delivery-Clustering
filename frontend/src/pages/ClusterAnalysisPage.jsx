@@ -82,7 +82,7 @@ const ClusterAnalysisPage = () => {
   return (
     <div className="page-enter">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="flex-header">
         <div>
           <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: 0 }}>Cluster Analysis</h2>
           <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0' }}>
@@ -103,7 +103,7 @@ const ClusterAnalysisPage = () => {
 
       {/* Stats row */}
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+        <div className="dashboard-stats-grid">
           {[
             { label: 'Total Clusters', value: stats.total, icon: Network, color: '#6366f1' },
             { label: 'Isolated Zones', value: stats.isolated, icon: AlertCircle, color: '#ef4444' },

@@ -50,7 +50,7 @@ const ReportsPage = () => {
   return (
     <div className="page-enter">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+      <div className="flex-header">
         <div>
           <h2 style={{ color: '#f1f5f9', fontWeight: 800, margin: 0 }}>Reports</h2>
           <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0' }}>Cluster analytics and export</p>
@@ -61,7 +61,7 @@ const ReportsPage = () => {
       </div>
 
       {/* Summary cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
+      <div className="dashboard-stats-grid">
         {[
           { label: 'Total Clusters', value: report?.totalClusters, icon: Network, color: '#6366f1' },
           { label: 'Isolated Zones', value: report?.isolatedZones, icon: AlertCircle, color: '#ef4444' },
@@ -81,7 +81,7 @@ const ReportsPage = () => {
       </div>
 
       {/* Charts + Table */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+      <div className="dashboard-charts-grid">
         {/* Cluster size bar chart */}
         <div className="glass-card" style={{ padding: '24px' }}>
           <h3 style={{ color: '#f1f5f9', fontWeight: 700, margin: '0 0 20px', fontSize: '1rem' }}>
@@ -138,7 +138,8 @@ const ReportsPage = () => {
         <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
           <h3 style={{ color: '#f1f5f9', fontWeight: 700, margin: 0, fontSize: '1rem' }}>All Clusters</h3>
         </div>
-        <table className="table-dark">
+        <div className="table-responsive">
+          <table className="table-dark">
           <thead>
             <tr>
               <th>Cluster</th>
@@ -181,8 +182,9 @@ const ReportsPage = () => {
                 </tr>
               );
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

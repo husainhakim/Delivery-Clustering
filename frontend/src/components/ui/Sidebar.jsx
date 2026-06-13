@@ -24,7 +24,7 @@ const navItems = [
   { to: '/dsa',            label: 'DSA Explanation',  icon: BookOpen        },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const { logout, admin } = useAuth();
   const navigate = useNavigate();
 
@@ -34,23 +34,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside
-      style={{
-        width: '260px',
-        minHeight: '100vh',
-        background: 'rgba(9, 14, 26, 0.95)',
-        borderRight: '1px solid rgba(99, 102, 241, 0.15)',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '0',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        bottom: 0,
-        zIndex: 40,
-        backdropFilter: 'blur(20px)',
-      }}
-    >
+    <aside className={`sidebar-container ${isOpen ? 'open' : ''}`}>
       {/* Logo */}
       <div style={{ padding: '24px 20px', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -80,6 +64,7 @@ const Sidebar = () => {
           <NavLink
             key={to}
             to={to}
+            onClick={onClose}
             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
             style={{ marginBottom: '4px', display: 'flex' }}
           >
